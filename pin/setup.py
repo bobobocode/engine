@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
 
-import sys
-try:
-    from setuptools import setup,find_packages
-except ImportError:
-    from distutils.core import setup
+#BoBoBo#
 
-import pin 
+from setuptools import setup, find_packages
 
-setup(name='pin',
-      version='1.0',
-      description='Web framework for engine',
-      author='',
-      author_email='',
-      url='',
-      py_modules=['frame'],
-      packages= find_packages(),
-      install_requires=['Jinja2>=2'],
-      scripts=['frame.py'],
-      license='GPL-v3',
-      platforms='LINUX',
-      )
+setup(
+    name='engine-pin',
+    version='0.3.0b22',
+    keywords=("framework", "WSGI", "functional", "nginx"),
+    url='https://github.com/bobobozzz/engine.git',
+    author='BoBoBo',
+    author_email='bobobonet@163.com',
+    description="A functional and WSGI compliant web framework",
+    packages=find_packages(),
+    install_requires=['Jinja2>=2.11.2', 'MarkupSafe>=1.1.1',
+                      'pytest>=6.1.2', 'PyMySQL>=0.10.1', 'DBUtils>=2.0'],
+    include_package_data=True,
+    platforms="any",
+    license="GPL v3.0"
+)
