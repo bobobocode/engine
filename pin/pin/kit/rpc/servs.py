@@ -35,14 +35,18 @@ def get_serv(path):
         return None
     else:
         elems = path.split('.')
+        url_path = '/' + '/'.join(elems)
 
         y = ss['servs']
         for e in elems:
             y = y[e]
 
+        print(str(y))
         force_remote = y.get('remote', False)
 
         function_cfg = y.get('function', None)
+        module_path = None
+        function_name = None
         if not function_cfg:
             try:
                 module_path = function_cfg[:function_cfg.rindex(".")]
@@ -53,17 +57,20 @@ def get_serv(path):
         server_cfg = y['server']
         timeout = y.get('timeout', 3)
 
-    def _remote_serv(*args, **kw):
-        nonlocal path
-        nonlocal server_cfg
+        def _remote_serv(*args, **kw):
+            nonlocal url_path
+            nonlocal server_cfg
+            nonlocal timeout
 
-        if None is server_cfg:
-            raise Exception('None server cfg.')
+            if None is server_cfg:
+                raise Exception('None server cfg.')
 
-        url = 'http://' + server_cfg['host'] + \
-            ':' + str(server_cfg['port']) + path
-        resp = requests.post(url, json=kw, timeout=timeout)
-        return resp.json()
+            url = 'http://' + server_cfg['host'] + \
+                ':' + str(server_cfg['port']) + url_path
+            resp = requests.post(url, json=kw, timeout=timeout)
+            r = resp.json()
+            r['_pin_from'] = resp.headers['REMOTE_ADDR']
+            return r
 
         if force_remote:
             return _remote_serv
@@ -71,7 +78,17 @@ def get_serv(path):
             try:
                 module = importlib.import_module(module_path)
                 fn = getattr(module, function_name)
-                return fn
+                def _local_serv(*args, **kw):
+                    nonlocal fn
+                    r = {}
+                    r['_pin_from'] = 'local'
+                    resp = fn(*args, **kw)
+                    if isinstance(resp, dict):
+                        r['_pin_return'] = resp
+                    else:
+                        resp['_pin_from'] = 'local'
+                        return resp
+                return _local_serv
             except Exception as ex:
                 print('Warning: Failed to import local servs moudle: ' +
                       module_path + ' for: ' + str(ex))

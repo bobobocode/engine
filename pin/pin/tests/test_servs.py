@@ -11,8 +11,8 @@ from pin.router import *
 
 def test_local():
     result = servs.get_serv('test.rpc2')(param1=11)
-    assert result['return'] == 111
-    assert result['from'] == 'local'
+    assert result['_pin_return'] == 111
+    assert result['_pin_from'] == 'local'
 
 
 @route("/test/rpc1")
@@ -39,4 +39,4 @@ def test_remote():
     result = servs.get_serv('test.rpc1')(param1=1, param2=2)
     assert result['errCode'] == 0
     assert result['data'] == {'param1':'1', 'param2':'2'}
-    assert result['from'] == '127.0.0.1'
+    assert result['_pin_from'] == '127.0.0.1'
