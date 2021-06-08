@@ -28,8 +28,30 @@ reset(cfg('pin', 'servs'))
 
 
 def get_serv(path):
-
     server_cfg = None
+
+    global ss
+    if None is path or '' == path:
+        return None
+    else:
+        elems = path.split('.')
+
+        y = ss['servs']
+        for e in elems:
+            y = y[e]
+
+        force_remote = y.get('remote', False)
+
+        function_cfg = y.get('function', None)
+        if not function_cfg:
+            try:
+                module_path = function_cfg[:function_cfg.rindex(".")]
+                function_name = function_cfg[function_cfg.rindex("."):]
+            except ValueError:
+                force_remote = True
+
+        server_cfg = y['server']
+        timeout = y.get('timeout', 3)
 
     def _remote_serv(*args, **kw):
         nonlocal path
@@ -40,36 +62,18 @@ def get_serv(path):
 
         url = 'http://' + server_cfg['host'] + \
             ':' + str(server_cfg['port']) + path
-        resp = requests.post(url, json=kw)
+        resp = requests.post(url, json=kw, timeout=timeout)
         return resp.json()
 
-    global ss
-    if None is path or '' == path:
-        return None
-    else:
-        elems = path.split('/')[1:]
-
-        y = ss['servs']
-        for e in elems:
-            y = y[e]
-
-        module_path = y['module']
-        server_cfg = y['server']
-        try:
-            module = importlib.import_module(module_path)
-        except Exception as ex:
-            print('Warning: Failed to import local servs moudle: ' +
-                  module_path + ' for: ' + str(ex))
-            print('Use remote servs to: ' + path)
+        if force_remote:
             return _remote_serv
         else:
-            fn = getattr(module, elems[-1])
-            return fn
-
-
-def just_data(resp):
-    if 'content' in resp:
-        content = json.loads(resp['content'])
-    if 'errCode' in resp:
-        content = resp
-    return content['errCode'], content.get('errMsg', None), content.get('data', None)
+            try:
+                module = importlib.import_module(module_path)
+                fn = getattr(module, function_name)
+                return fn
+            except Exception as ex:
+                print('Warning: Failed to import local servs moudle: ' +
+                      module_path + ' for: ' + str(ex))
+                print('Use remote servs to: ' + path)
+                return _remote_serv

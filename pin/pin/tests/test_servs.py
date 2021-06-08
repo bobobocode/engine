@@ -10,23 +10,20 @@ from pin.router import *
 
 
 def test_local():
-    code, msg, data = servs.just_data(
-        servs.get_serv('/test/serv/local')(param1=1, param2=2))
-    assert code == 0
-    assert data == 'param1=1,param2=2'
+    result = servs.get_serv('test.rpc2')(param1=11)
+    assert result['return'] == 111
+    assert result['from'] == 'local'
 
 
-def local(param1, param2):
-    data = 'param1=' + str(param1) + ',' + 'param2=' + str(param2)
+@route("/test/rpc1")
+def r1(param1, param2):
+    data = {'param1' : str(param1) , 'param2' : str(param2) }
     result = {'errCode': 0, 'errMsg': 'succeed', 'data': data}
     return result
 
-
-@route("/test/serv/remote")
-def remote(param1, param2):
-    data = 'param1=' + str(param1) + ',' + 'param2=' + str(param2)
-    result = {'errCode': 0, 'errMsg': 'succeed', 'data': data}
-    return result
+@route("/test/rpc2")
+def r2(param1):
+    return param1 + 100
 
 
 app = pin_app(True)
@@ -39,7 +36,7 @@ def test_remote():
     print("Waiting server start for 5 seconds...")
     time.sleep(5)
 
-    code, msg, data = servs.just_data(
-        servs.get_serv('/test/serv/remote')(param1=3, param2=4))
-    assert code == 0
-    assert data == 'param1=3,param2=4'
+    result = servs.get_serv('test.rpc1')(param1=1, param2=2)
+    assert result['errCode'] == 0
+    assert result['data'] == {'param1':'1', 'param2':'2'}
+    assert result['from'] == '127.0.0.1'

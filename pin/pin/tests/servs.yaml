@@ -5,11 +5,13 @@ server:
 
 servs:
   test:
-    serv:
-      local:
-        module: pin.tests.test_servs
-        server: *suser-server
-      remote:
-        module: pin.tests.test_servs
-        server: *suser-server
-
+    rpc1:
+      function: pin.tests.test_servs.r1
+      server: *suser-server
+      remote: true
+      timeout: 2                      #unit second
+      compress: true                  #snappy
+    rpc2:
+      function: pin.tests.test_servs.r2
+      server: *suser-server
+      timeout: 3
