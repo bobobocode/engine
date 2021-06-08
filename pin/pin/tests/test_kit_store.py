@@ -15,9 +15,12 @@ def test_conn():
 
 def test_store_data():
     db = get_db()
+    clean_sql = "drop table if exists t_test_store;"
+    execute(db, clean_sql)
+
     # Create test table
     create_test_table = """
-        create table t_test_store(
+        create table if not exists t_test_store(
             id int unsigned primary key auto_increment,
             field1 varchar(50) not null,
             created datetime default current_timestamp comment 'create record time',
