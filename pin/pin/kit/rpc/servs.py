@@ -41,17 +41,17 @@ def get_serv(path):
         for e in elems:
             y = y[e]
 
-        print(str(y))
         force_remote = y.get('remote', False)
 
         function_cfg = y.get('function', None)
         module_path = None
         function_name = None
-        if not function_cfg:
+        if function_cfg:
             try:
-                module_path = function_cfg[:function_cfg.rindex(".")]
-                function_name = function_cfg[function_cfg.rindex("."):]
+                module_path = function_cfg[ : function_cfg.rindex(".")]
+                function_name = function_cfg[function_cfg.rindex(".") + 1 : ]
             except ValueError:
+                print('Found no local function cfg. Will use remote serv.')
                 force_remote = True
 
         server_cfg = y['server']
@@ -69,7 +69,7 @@ def get_serv(path):
                 ':' + str(server_cfg['port']) + url_path
             resp = requests.post(url, json=kw, timeout=timeout)
             r = resp.json()
-            r['_pin_from'] = resp.headers['REMOTE_ADDR']
+            r['_pin_from'] = 'remote'
             return r
 
         if force_remote:
@@ -78,17 +78,21 @@ def get_serv(path):
             try:
                 module = importlib.import_module(module_path)
                 fn = getattr(module, function_name)
+                
                 def _local_serv(*args, **kw):
                     nonlocal fn
-                    r = {}
-                    r['_pin_from'] = 'local'
-                    resp = fn(*args, **kw)
+                    resp = fn(*args, **kw).get('content', None)
                     if isinstance(resp, dict):
-                        r['_pin_return'] = resp
-                    else:
                         resp['_pin_from'] = 'local'
                         return resp
+                    else:
+                        r = {}
+                        r['_pin_return'] = resp
+                        r['_pin_from'] = 'local'
+                        return r
+
                 return _local_serv
+
             except Exception as ex:
                 print('Warning: Failed to import local servs moudle: ' +
                       module_path + ' for: ' + str(ex))

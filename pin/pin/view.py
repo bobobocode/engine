@@ -40,7 +40,10 @@ def response_json(result, headers=None):
     if headers:
         res['headers'] += list(map(lambda k: (k, headers[k]), headers))
     res['status'] = '200 OK'
-    res['content'] = json.dumps(result, cls=ComplexEncoder)
+    if isinstance(result, int) or isinstance(result, float):
+        res['content'] = result
+    else:
+        res['content'] = json.dumps(result, cls=ComplexEncoder)
     return res
 
 
