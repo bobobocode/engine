@@ -7,16 +7,7 @@ from pin.router import *
 app = pin_app(True)
 
 
-def response_(src):
-    res = {}
-    res['headers'] = []
-    res['headers'].append(('Content-Type', 'text/plain;charset=utf-8'))
-    res['status'] = '200 OK'
-    res['content'] = src
-    return res
-
-
-@route("/pin/test/hello", response_)
+@route("/pin/test/hello")
 def hello(param):
     print(param)
     return "Hello Pin!"
@@ -29,6 +20,7 @@ def test_dispatch():
     request['QUERY_STRING'] = 'param=testparam'
 
     response = dispatch(request)
+    print(response)
     assert response['content'] == "Hello Pin!"
 
 

@@ -22,14 +22,14 @@ from pin.kit.common import errcode_ret
 def router():
     url_map = {}
 
-    def route(url, response_=response_json):
+    def route(url):
         def wrapper_a(func):
             def wrapper_b(*args, **kw):
                 try:
-                    return response_(func(*args, **kw))
+                    return func(*args, **kw)
                 except Exception as e:
                     print('Error: %s' % traceback.format_exc())
-                    return response_json(errcode_ret(-500, str(e), None))
+                    return errcode_ret(-500, str(e), None)
 
             url_map[url] = wrapper_b
             return wrapper_b
@@ -44,6 +44,13 @@ urls, route = router()
 def dispatch(environ):
     path = environ['PATH_INFO']
     action = urls.get(path)
+
+    def wsgi_response(func):
+        def wrapper(*args, **kw):
+            return response_json(func(*args, **kw))
+        return wrapper
+    action = wsgi_response(action)
+
     if None is action:
         return response_404()
     else:

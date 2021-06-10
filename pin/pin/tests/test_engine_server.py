@@ -15,7 +15,7 @@ test_str = "Hello Pin from embed server."
 test_res = {"errCode": 0, "errMsg": None, "data": test_str}
 
 
-@route("/pin/test/engine/hello_serv", response_json)
+@route("/pin/test/engine/hello_serv")
 def hello(auth, p1):
     global test_str
     print(str(auth))

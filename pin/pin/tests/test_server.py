@@ -12,14 +12,14 @@ import time
 test_str = "Hello Pin from embed server."
 
 
-@route("/pin/test/hello_serv", response_json)
+@route("/pin/test/hello_serv")
 def hello(p1):
     global test_str
     print(str(p1))
     return {"errCode": 0, "errMsg": "", "content": test_str}
 
 
-@route("/pin/test/exception", response_json)
+@route("/pin/test/exception")
 def exception():
     raise Exception("Test exception message.")
 

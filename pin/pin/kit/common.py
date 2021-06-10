@@ -62,7 +62,7 @@ def ret_data(errcode_ret): return errcode_ret[PROTOCOL_KEY_DATA]
 def decide_conf_file(hint_path='./etc/pin.conf'):
     if hint_path:
         if hint_path[0] == '/':
-            conf_file = conf_path
+            conf_file = hint_path
         else:
             conf_file = os.getcwd() + '/' + hint_path
 

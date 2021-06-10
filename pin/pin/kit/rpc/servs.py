@@ -48,8 +48,8 @@ def get_serv(path):
         function_name = None
         if function_cfg:
             try:
-                module_path = function_cfg[ : function_cfg.rindex(".")]
-                function_name = function_cfg[function_cfg.rindex(".") + 1 : ]
+                module_path = function_cfg[: function_cfg.rindex(".")]
+                function_name = function_cfg[function_cfg.rindex(".") + 1:]
             except ValueError:
                 print('Found no local function cfg. Will use remote serv.')
                 force_remote = True
@@ -78,10 +78,10 @@ def get_serv(path):
             try:
                 module = importlib.import_module(module_path)
                 fn = getattr(module, function_name)
-                
+
                 def _local_serv(*args, **kw):
                     nonlocal fn
-                    resp = fn(*args, **kw).get('content', None)
+                    resp = fn(*args, **kw)
                     if isinstance(resp, dict):
                         resp['_pin_from'] = 'local'
                         return resp
