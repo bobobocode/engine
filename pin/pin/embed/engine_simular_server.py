@@ -41,7 +41,7 @@ class EngineHandler(BaseHTTPRequestHandler):
 
     def forbidden(self):
         self.response(403, None, json.dumps(
-            {'errCode': 403, 'errMsg': 'Failed pass auth filter.'}))
+            {'code': 403, 'msg': 'Failed pass auth filter.'}))
 
     def response(self, code, headers, content):
         self.send_response(code)

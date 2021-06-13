@@ -18,7 +18,7 @@ def test_local():
 @route("/test/rpc1")
 def r1(param1, param2):
     data = {'param1' : str(param1) , 'param2' : str(param2) }
-    result = {'errCode': 0, 'errMsg': 'succeed', 'data': data}
+    result = {'code': 0, 'msg': 'succeed', 'data': data}
     return result
 
 @route("/test/rpc2")
@@ -37,6 +37,6 @@ def test_remote():
     time.sleep(5)
 
     result = servs.get_serv('test.rpc1')(param1=1, param2=2)
-    assert result['errCode'] == 0
+    assert result['code'] == 0
     assert result['data'] == {'param1':'1', 'param2':'2'}
     assert result['_pin_from'] == 'remote'

@@ -9,8 +9,8 @@ Common Appointments
 import configparser
 import os
 
-PROTOCOL_KEY_CODE = 'errCode'
-PROTOCOL_KEY_MESSAGE = 'errMsg'
+PROTOCOL_KEY_CODE = 'code'
+PROTOCOL_KEY_MESSAGE = 'msg'
 PROTOCOL_KEY_DATA = 'data'
 
 PROTOCOL_CODE_SUCCESS = 0

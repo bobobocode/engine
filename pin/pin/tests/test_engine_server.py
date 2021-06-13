@@ -12,7 +12,7 @@ import time
 app = engine_app(pin_app(True))
 
 test_str = "Hello Pin from embed server."
-test_res = {"errCode": 0, "errMsg": None, "data": test_str}
+test_res = {"code": 0, "msg": None, "data": test_str}
 
 
 @route("/pin/test/engine/hello_serv")
