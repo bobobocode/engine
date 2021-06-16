@@ -15,6 +15,7 @@ from html import escape
 
 from pin.view import response_404
 from pin.view import response_json
+from pin.view import response_raw
 from pin.kit.util import html_escape
 from pin.kit.common import errcode_ret
 
@@ -45,11 +46,22 @@ def dispatch(environ):
     path = environ['PATH_INFO']
     action = urls.get(path)
 
-    def wsgi_response(func):
+    def wrap_response(func):
         def wrapper(*args, **kw):
-            return response_json(func(*args, **kw))
+            result = func(*args, **kw)
+            if isinstance(result, dict):
+                return response_json(result)
+            elif isinstance(result, int) or isinstance(result, float) or isinstance(result, str):
+                return response_raw(result)
+            elif isinstance(result, tuple):
+                if len(result) == 2 and result[0] and result[0].endswith('.html'):
+                    return response_tpl(result[0], result[1])
+                else:
+                    return response_json(result)
+            else:
+                return response_raw(result)
         return wrapper
-    action = wsgi_response(action)
+    action = wrap_response(action)
 
     if None is action:
         return response_404()
@@ -118,8 +130,7 @@ def pin_app(debug):
                        '<h2>Traceback:</h2>\n<pre>\n%s\n</pre>\n' \
                        % (html_escape(repr(E)), html_escape(format_exc()))
             headers = [('Content-Type', 'text/html; charset=UTF-8')]
-            start_response('500 INTERNAL SERVER ERROR',
-                           headers, sys.exc_info())
+            start_response('500 INTERNAL SERVER ERROR', headers)
             return [to_bytes(err)]
         else:
             if debug:

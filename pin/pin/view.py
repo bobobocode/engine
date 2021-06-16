@@ -40,14 +40,22 @@ def response_json(result, headers=None):
     if headers:
         res['headers'] += list(map(lambda k: (k, headers[k]), headers))
     res['status'] = '200 OK'
-    if isinstance(result, int) or isinstance(result, float) or isinstance(result, str):
-        res['content'] = result
-    else:
-        res['content'] = json.dumps(result, cls=ComplexEncoder)
+    res['content'] = json.dumps(result, cls=ComplexEncoder)
     return res
 
 
-def response_html(tpl_file, tpl_param={}, headers=None):
+def response_raw(result, headers=None):
+    res = {}
+    res['headers'] = []
+    res['headers'].append(('Content-Type', 'application/json;charset=utf-8'))
+    if headers:
+        res['headers'] += list(map(lambda k: (k, headers[k]), headers))
+    res['status'] = '200 OK'
+    res['content'] = result
+    return res
+
+
+def response_tpl(tpl_file, tpl_param={}, headers=None):
     res = {}
     res['headers'] = []
     res['headers'].append(('Content-Type', 'text/html;charset=utf-8'))
