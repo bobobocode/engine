@@ -16,9 +16,8 @@ test_res = {"code": 0, "msg": None, "data": test_str}
 
 
 @route("/pin/test/engine/hello_serv")
-def hello(auth, p1):
+def hello(p1):
     global test_str
-    print(str(auth))
     print(str(p1))
     return test_res
 
@@ -43,11 +42,10 @@ def start_server():
 def test_server():
     global test_str
 
-    headers = {'Auth-Token': 'abc'}
     param = {"p1": "v1"}
     try:
         resp = requests.get(
-            'http://127.0.0.1:8000/pin/test/engine/hello_serv', params=param, headers=headers)
+            'http://127.0.0.1:8000/pin/test/engine/hello_serv', params=param)
         r = resp.json()
     except Exception as e:
         #pytest.fail('Error: ' + str(e))
