@@ -84,8 +84,12 @@ class EngineHandler(BaseHTTPRequestHandler):
         request['CONTENT_TYPE'] = self.headers.get(
             'Content-Type', 'application/json')
         request['wsgi.input'] = self.rfile
+
         if len(paths) > 1:
             request['QUERY_STRING'] = paths[1]
+        else:
+            request['QUERY_STRING'] = None
+
         return request
 
     def do_POST(self):

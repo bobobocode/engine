@@ -76,13 +76,8 @@ def dispatch(environ):
             auth_param = None
 
         if 'GET' == method:
-            query = environ['QUERY_STRING']
-            if '' == query:
-                if auth_param:
-                    return action(auth_param)
-                else:
-                    return action()
-            else:
+            query = environ.get('QUERY_STRING', None)
+            if query:
                 querys = query.split('&')
                 querys = list(map(lambda s: s.split('='), querys))
                 querys_key = list(map(lambda s: s[0], querys))
@@ -92,6 +87,11 @@ def dispatch(environ):
                     return action(auth_param, **param)
                 else:
                     return action(**param)
+            else:
+                if auth_param:
+                    return action(auth_param)
+                else:
+                    return action()
 
         elif 'POST' == method:
             try:
