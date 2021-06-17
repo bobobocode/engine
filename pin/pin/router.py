@@ -40,6 +40,10 @@ def router():
 
 
 urls, route = router()
+print('-' * 10)
+print('Pin will route:')
+print(str(list(urls.keys())))
+print('-' * 10)
 
 
 def dispatch(environ):
@@ -61,19 +65,13 @@ def dispatch(environ):
             else:
                 return response_raw(result)
         return wrapper
+
     action = wrap_response(action)
 
     if None is action:
         return response_404()
     else:
         method = environ['REQUEST_METHOD']
-        try:
-            auth_param = environ['AUTH']
-            if auth_param and '' != auth_param:
-                auth_param = json.loads(auth_param)
-        except Exception as e:
-            print('Failed to parse auth data for: ' + str(e))
-            auth_param = None
 
         if 'GET' == method:
             query = environ.get('QUERY_STRING', None)
@@ -83,15 +81,9 @@ def dispatch(environ):
                 querys_key = list(map(lambda s: s[0], querys))
                 querys_value = list(map(lambda s: s[1], querys))
                 param = dict(zip(querys_key, querys_value))
-                if auth_param:
-                    return action(auth_param, **param)
-                else:
-                    return action(**param)
+                return action(**param)
             else:
-                if auth_param:
-                    return action(auth_param)
-                else:
-                    return action()
+                return action()
 
         elif 'POST' == method:
             try:
@@ -99,15 +91,17 @@ def dispatch(environ):
             except (ValueError):
                 environ_body_size = 0
             print("Server received content length: " + str(environ_body_size))
+
+            if 0 == environ_body_size:
+                return action()
+
             environ_body = environ['wsgi.input'].read(environ_body_size)
             print("Server received content: " + str(environ_body))
             nd = environ_body.decode("utf8")
             print("Server received content escaped: " + nd)
+            # TODO: if not json
             nd = json.loads(nd)
-            if auth_param:
-                return action(auth_param, **nd)
-            else:
-                return action(**nd)
+            return action(**nd)
         else:
             return action(environ)
 
