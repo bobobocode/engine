@@ -6,12 +6,12 @@ server:
 servs:
   test:
     rpc1:
-      function: pin.tests.test_servs.r1
+      function: tests.test_servs.r1
       server: *suser-server
       remote: true
       timeout: 2                      #unit second
       compress: true                  #snappy
     rpc2:
-      function: pin.tests.test_servs.r2
+      function: tests.test_servs.r2
       server: *suser-server
       timeout: 3
