@@ -47,4 +47,5 @@ cscope*
 build
 dist
 *egg*
+*.cache
 log.txt
