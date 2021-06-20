@@ -7,10 +7,20 @@ from pin.router import *
 app = pin_app(True)
 
 
-@route("/pin/test/hello")
-def hello(param):
+@route('/pin/test/hello')
+def hello_str(param):
     print(param)
-    return "Hello Pin!"
+    return 'Hello Pin!'
+
+
+@route('/pin/test/hello2')
+def hello_dict(param):
+    return {'say': 'Hello Pin!'}
+
+
+@route('/pin/test/hello3')
+def hello_tpl(param):
+    return "hello.html", None
 
 
 def test_dispatch():
@@ -21,8 +31,13 @@ def test_dispatch():
 
     response = dispatch(request)
     print(response)
-    assert response['content'] == "Hello Pin!"
+    assert response['content'] == 'Hello Pin!'
 
+    request['PATH_INFO'] = '/pin/test/hello2'
+    response = dispatch(request)
+    print(response)
+    assert json.loads(response['content']) == {'say': 'Hello Pin!'}
 
-def test_controller_param():
-    hello(100)
+    request['PATH_INFO'] = '/pin/test/hello3'
+    response = dispatch(request)
+    print(response)

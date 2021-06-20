@@ -16,6 +16,7 @@ from html import escape
 from pin.view import response_404
 from pin.view import response_json
 from pin.view import response_raw
+from pin.view import response_tpl
 from pin.kit.util import html_escape
 from pin.kit.common import errcode_ret
 
@@ -24,7 +25,11 @@ def router():
     url_map = {}
 
     def route(url):
+        nonlocal url_map
+
         def wrapper_a(func):
+            nonlocal url_map
+
             def wrapper_b(*args, **kw):
                 try:
                     return func(*args, **kw)
@@ -40,15 +45,14 @@ def router():
 
 
 urls, route = router()
-print('-' * 10)
-print('Pin will route:')
-print(str(list(urls.keys())))
-print('-' * 10)
 
 
 def dispatch(environ):
     path = environ['PATH_INFO']
     action = urls.get(path)
+
+    if None is action:
+        return response_404()
 
     def wrap_response(func):
         def wrapper(*args, **kw):
@@ -67,43 +71,39 @@ def dispatch(environ):
         return wrapper
 
     action = wrap_response(action)
+    method = environ['REQUEST_METHOD']
 
-    if None is action:
-        return response_404()
-    else:
-        method = environ['REQUEST_METHOD']
-
-        if 'GET' == method:
-            query = environ.get('QUERY_STRING', None)
-            if query:
-                querys = query.split('&')
-                querys = list(map(lambda s: s.split('='), querys))
-                querys_key = list(map(lambda s: s[0], querys))
-                querys_value = list(map(lambda s: s[1], querys))
-                param = dict(zip(querys_key, querys_value))
-                return action(**param)
-            else:
-                return action()
-
-        elif 'POST' == method:
-            try:
-                environ_body_size = int(environ.get('CONTENT_LENGTH', 0))
-            except (ValueError):
-                environ_body_size = 0
-            print("Server received content length: " + str(environ_body_size))
-
-            if 0 == environ_body_size:
-                return action()
-
-            environ_body = environ['wsgi.input'].read(environ_body_size)
-            print("Server received content: " + str(environ_body))
-            nd = environ_body.decode("utf8")
-            print("Server received content escaped: " + nd)
-            # TODO: if not json
-            nd = json.loads(nd)
-            return action(**nd)
+    if 'GET' == method:
+        query = environ.get('QUERY_STRING', None)
+        if query:
+            querys = query.split('&')
+            querys = list(map(lambda s: s.split('='), querys))
+            querys_key = list(map(lambda s: s[0], querys))
+            querys_value = list(map(lambda s: s[1], querys))
+            param = dict(zip(querys_key, querys_value))
+            return action(**param)
         else:
-            return action(environ)
+            return action()
+
+    elif 'POST' == method:
+        try:
+            environ_body_size = int(environ.get('CONTENT_LENGTH', 0))
+        except (ValueError):
+            environ_body_size = 0
+        print("Server received content length: " + str(environ_body_size))
+
+        if 0 == environ_body_size:
+            return action()
+
+        environ_body = environ['wsgi.input'].read(environ_body_size)
+        print("Server received content: " + str(environ_body))
+        nd = environ_body.decode("utf8")
+        print("Server received content escaped: " + nd)
+        # TODO: if not json
+        nd = json.loads(nd)
+        return action(**nd)
+    else:
+        return action(environ)
 
 
 def pin_app(debug):

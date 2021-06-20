@@ -13,7 +13,8 @@ from jinja2 import Environment, \
     FileSystemLoader, \
     FileSystemBytecodeCache, \
     select_autoescape, \
-    Template
+    Template, \
+    url_for
 
 
 def tpl_path(conf=None):
@@ -55,7 +56,10 @@ def response_raw(result, headers=None):
     return res
 
 
-def response_tpl(tpl_file, tpl_param={}, headers=None):
+def response_tpl(tpl_file, tpl_param, headers=None):
+    if tpl_param is None:
+        tpl_param = {}
+
     res = {}
     res['headers'] = []
     res['headers'].append(('Content-Type', 'text/html;charset=utf-8'))
