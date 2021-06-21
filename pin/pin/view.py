@@ -13,8 +13,7 @@ from jinja2 import Environment, \
     FileSystemLoader, \
     FileSystemBytecodeCache, \
     select_autoescape, \
-    Template, \
-    url_for
+    Template
 
 
 def tpl_path(conf=None):

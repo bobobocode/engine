@@ -89,7 +89,7 @@ def get_conf(app_name, conf_file=None):
         print("Failed to read conf file: " + str(conf_file))
         conf = None
 
-    def _get_conf(section, key, default=None):
+    def _get_conf(section, key=None, default=None):
         nonlocal conf
         nonlocal app_name
         try:
@@ -98,6 +98,10 @@ def get_conf(app_name, conf_file=None):
 
             if app_name and '' != app_name:
                 section = app_name + '.' + section
+
+            if key is None:
+                return dict(conf[section])
+
             s = conf.get(section, key)
             if s.isnumeric():
                 try:

@@ -59,3 +59,8 @@ def test_server():
         'http://localhost:8080/pin/test/hello_serv_post', json=param)
     r = resp.json()
     assert r["content"] == test_str
+
+
+def test_server_static():
+    resp = requests.get('http://localhost:8080/css/hello.css')
+    print(resp.text)

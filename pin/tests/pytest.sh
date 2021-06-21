@@ -43,7 +43,7 @@ echo "export PYTHONPATH=${PYTHONPATH}:${basedir}/.." >> ./test-venv/bin/activate
 source ./test-venv/bin/activate
 if [ ${justenv} -eq 0 ]; then
     echo "Starting to run pytest to : $target"
-    pytest -s -v $target
+    pytest -s $target
 fi
 
 echo "Go back to dir : ${curdir}"

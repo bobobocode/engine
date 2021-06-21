@@ -26,6 +26,8 @@ class EngineHandler(BaseHTTPRequestHandler):
         if directory is None:
             directory = os.getcwd()
         self.directory = directory
+        self.conf = get_conf('engine')
+        self.static_root_path = self.conf(None, 'static_root_path', None)
 
     def response(self, code, headers, content):
         self.send_response(code)
@@ -44,6 +46,22 @@ class EngineHandler(BaseHTTPRequestHandler):
     def call_app(self, request):
         res = self.do_app(request)
         self.response(200, res['headers'], res['content'])
+
+    def get_static(self, mimetype):
+        if self.path == "/":
+            self.path = "/index.html"
+
+        try:
+            static_file = self.static_root_path + self.path
+            print("Looking up static file:  %s" % static_file)
+            f = open(static_file)
+            self.send_response(200)
+            self.send_header('Content-type', mimetype)
+            self.end_headers()
+            self.wfile.write(f.read())
+            f.close()
+        except IOError:
+            self.send_error(404, 'File Not Found: %s' % self.path)
 
     def engine_request(self, method):
         paths = self.path.split('?')
@@ -67,8 +85,28 @@ class EngineHandler(BaseHTTPRequestHandler):
         self.call_app(request)
 
     def do_GET(self):
-        request = self.engine_request('GET')
-        self.call_app(request)
+        is_static = False
+        if self.path.endswith(".html"):
+            mimetype = 'text/html'
+            is_static = True
+        elif self.path.endswith(".jpg"):
+            mimetype = 'image/jpg'
+            is_static = True
+        elif self.path.endswith(".gif"):
+            mimetype = 'image/gif'
+            is_static = True
+        elif self.path.endswith(".js"):
+            mimetype = 'application/javascript'
+            is_static = True
+        elif self.path.endswith(".css"):
+            mimetype = 'text/css'
+            is_static = True
+
+        if is_static:
+            self.get_static(mimetype)
+        else:
+            request = self.engine_request('GET')
+            self.call_app(request)
 
     def do_app(self, request):
         print('Receive request: ' + str(requests))

@@ -22,7 +22,7 @@ services:
         python setup.py install
         cd /var/app/tests
         pip install -r /var/app/test-requirements.txt
-        pytest -v -s .
+        pytest -s .
 
   mysql:
     image: mysql:5.7
