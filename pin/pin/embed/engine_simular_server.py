@@ -15,19 +15,25 @@ import io
 import json
 import shutil
 from pin.kit.common import get_conf
+from pin.kit.util import get_logger
 import importlib
+
+logger = None
 
 
 class EngineHandler(BaseHTTPRequestHandler):
 
     def __init__(self, *args, directory=None, **kwargs):
-        super().__init__(*args, **kwargs)
-
         if directory is None:
             directory = os.getcwd()
         self.directory = directory
         self.conf = get_conf('engine')
+
+        global logger
+        logger = get_logger(self.conf)
         self.static_root_path = self.conf(None, 'static_root_path', None)
+
+        super().__init__(*args, **kwargs)
 
     def response(self, code, headers, content):
         self.send_response(code)
@@ -53,7 +59,7 @@ class EngineHandler(BaseHTTPRequestHandler):
 
         try:
             static_file = self.static_root_path + self.path
-            print("Looking up static file:  %s" % static_file)
+            logger.debug("Looking up static file:  %s" % static_file)
             f = open(static_file)
             self.send_response(200)
             self.send_header('Content-type', mimetype)
@@ -103,15 +109,17 @@ class EngineHandler(BaseHTTPRequestHandler):
             is_static = True
 
         if is_static:
+            logger.debug("Getting static resource.")
             self.get_static(mimetype)
         else:
+            logger.debug("Getting to call app")
             request = self.engine_request('GET')
             self.call_app(request)
 
     def do_app(self, request):
-        print('Receive request: ' + str(requests))
+        logger.debug('Receive request: ' + str(requests))
         info = 'Need to be overrided by Subclass.'
-        print(info)
+        logger.debug(info)
         res = {}
         res['headers'] = {}
         res['content'] = info

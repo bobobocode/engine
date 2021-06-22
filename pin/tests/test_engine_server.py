@@ -68,3 +68,9 @@ def test_post():
         print('Error')
     else:
         assert r == test_res
+
+
+def test_server_static():
+    resp = requests.get('http://127.0.0.1:8000/css/hello.css')
+    print(resp.text)
+    assert resp.status_code == 200

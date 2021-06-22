@@ -97,7 +97,10 @@ def get_conf(app_name, conf_file=None):
                 raise Exception('None conf.')
 
             if app_name and '' != app_name:
-                section = app_name + '.' + section
+                if section:
+                    section = app_name + '.' + section
+                else:
+                    section = app_name
 
             if key is None:
                 return dict(conf[section])
