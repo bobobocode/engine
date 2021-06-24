@@ -14,9 +14,11 @@ from http import HTTPStatus
 import io
 import json
 import shutil
-import pin.embed.engine_simular_filter as engine_simular_filter
 from pin.kit.common import get_conf
+from pin.kit.util import get_logger
 import importlib
+
+logger = None
 
 
 class EngineHandler(BaseHTTPRequestHandler):
@@ -25,23 +27,13 @@ class EngineHandler(BaseHTTPRequestHandler):
         if directory is None:
             directory = os.getcwd()
         self.directory = directory
+        self.conf = get_conf('engine')
 
-        self.filters = {}
-        conf = get_conf('engine')
-        auth_filter_rule = conf('filter', 'auth_filter_rule')
-        self.filters['auth_filter_rule'] = auth_filter_rule
-        self.auth_header_name = conf('filter', 'auth_header_name')
-        try:
-            self.token_storer = importlib.import_module(
-                conf('filter', 'token_storer'))
-        except Exception as e:
-            print('Failed to get token storer for: ' + str(e))
+        global logger
+        logger = get_logger(self.conf)
+        self.static_root_path = self.conf(None, 'static_root_path', None)
 
         super().__init__(*args, **kwargs)
-
-    def forbidden(self):
-        self.response(403, None, json.dumps(
-            {'errCode': 403, 'errMsg': 'Failed pass auth filter.'}))
 
     def response(self, code, headers, content):
         self.send_response(code)
@@ -61,49 +53,72 @@ class EngineHandler(BaseHTTPRequestHandler):
         res = self.do_app(request)
         self.response(200, res['headers'], res['content'])
 
-    def incoming_filter(self):
-        path = self.path.split('?')[0]
-        if engine_simular_filter.fit(self.filters['auth_filter_rule'], path):
-            headers = engine_simular_filter.auth_filter(
-                self.headers, self.auth_header_name, self.token_storer)
-            if not headers:
-                return False
-            else:
-                self.headers = headers
-                return True
+    def get_static(self, mimetype):
+        if self.path == "/":
+            self.path = "/index.html"
 
-        return True
+        try:
+            static_file = self.static_root_path + self.path
+            logger.debug("Looking up static file:  %s" % static_file)
+            f = open(static_file)
+            return self.response(200, {'Content-type': mimetype}, f.read())
+        except IOError:
+            self.send_error(404, 'File Not Found: %s' % self.path)
+        finally:
+            if f:
+                f.close()
 
     def engine_request(self, method):
         paths = self.path.split('?')
         request = {}
         request['PATH_INFO'] = paths[0]
-        request['AUTH'] = self.headers.get('Auth', None)
         request['REQUEST_METHOD'] = method
         request['CONTENT_LENGTH'] = self.headers.get('Content-Length', 0)
         request['CONTENT_TYPE'] = self.headers.get(
             'Content-Type', 'application/json')
         request['wsgi.input'] = self.rfile
+
         if len(paths) > 1:
             request['QUERY_STRING'] = paths[1]
+        else:
+            request['QUERY_STRING'] = None
+
         return request
 
     def do_POST(self):
-        if not self.incoming_filter():
-            return self.forbidden()
         request = self.engine_request('POST')
         self.call_app(request)
 
     def do_GET(self):
-        if not self.incoming_filter():
-            return self.forbidden()
-        request = self.engine_request('GET')
-        self.call_app(request)
+        is_static = False
+        if self.path.endswith(".html"):
+            mimetype = 'text/html'
+            is_static = True
+        elif self.path.endswith(".jpg"):
+            mimetype = 'image/jpg'
+            is_static = True
+        elif self.path.endswith(".gif"):
+            mimetype = 'image/gif'
+            is_static = True
+        elif self.path.endswith(".js"):
+            mimetype = 'application/javascript'
+            is_static = True
+        elif self.path.endswith(".css"):
+            mimetype = 'text/css'
+            is_static = True
+
+        if is_static:
+            logger.debug("Getting static resource.")
+            self.get_static(mimetype)
+        else:
+            logger.debug("Getting to call app")
+            request = self.engine_request('GET')
+            self.call_app(request)
 
     def do_app(self, request):
-        print('Receive request: ' + str(requests))
+        logger.debug('Receive request: ' + str(requests))
         info = 'Need to be overrided by Subclass.'
-        print(info)
+        logger.debug(info)
         res = {}
         res['headers'] = {}
         res['content'] = info

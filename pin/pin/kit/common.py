@@ -9,8 +9,8 @@ Common Appointments
 import configparser
 import os
 
-PROTOCOL_KEY_CODE = 'errCode'
-PROTOCOL_KEY_MESSAGE = 'errMsg'
+PROTOCOL_KEY_CODE = 'code'
+PROTOCOL_KEY_MESSAGE = 'msg'
 PROTOCOL_KEY_DATA = 'data'
 
 PROTOCOL_CODE_SUCCESS = 0
@@ -62,7 +62,7 @@ def ret_data(errcode_ret): return errcode_ret[PROTOCOL_KEY_DATA]
 def decide_conf_file(hint_path='./etc/pin.conf'):
     if hint_path:
         if hint_path[0] == '/':
-            conf_file = conf_path
+            conf_file = hint_path
         else:
             conf_file = os.getcwd() + '/' + hint_path
 
@@ -89,7 +89,7 @@ def get_conf(app_name, conf_file=None):
         print("Failed to read conf file: " + str(conf_file))
         conf = None
 
-    def _get_conf(section, key, default=None):
+    def _get_conf(section, key=None, default=None):
         nonlocal conf
         nonlocal app_name
         try:
@@ -97,7 +97,14 @@ def get_conf(app_name, conf_file=None):
                 raise Exception('None conf.')
 
             if app_name and '' != app_name:
-                section = app_name + '.' + section
+                if section:
+                    section = app_name + '.' + section
+                else:
+                    section = app_name
+
+            if key is None:
+                return dict(conf[section])
+
             s = conf.get(section, key)
             if s.isnumeric():
                 try:

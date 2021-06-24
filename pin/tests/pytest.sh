@@ -29,21 +29,21 @@ if [  -d test-venv ]; then
         rm -rf test-venv
         python3 -m venv test-venv
         source ./test-venv/bin/activate
-        pip install -r ../../test-requirements.txt
+        pip install -r ../test-requirements.txt
     fi
 else
     python3 -m venv test-venv
     source ./test-venv/bin/activate
-    pip install -r ../../test-requirements.txt
+    pip install -r ../test-requirements.txt
 fi
 
 echo "export PIN_CONF=${basedir}/pin.conf" >> ./test-venv/bin/activate
-echo "export PYTHONPATH=${PYTHONPATH}:${basedir}/../.." >> ./test-venv/bin/activate
+echo "export PYTHONPATH=${PYTHONPATH}:${basedir}/.." >> ./test-venv/bin/activate
 
 source ./test-venv/bin/activate
 if [ ${justenv} -eq 0 ]; then
     echo "Starting to run pytest to : $target"
-    pytest -s -v $target
+    pytest -s $target
 fi
 
 echo "Go back to dir : ${curdir}"

@@ -47,4 +47,6 @@ cscope*
 build
 dist
 *egg*
+*.cache
 log.txt
+.DS_Store

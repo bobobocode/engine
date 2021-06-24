@@ -12,13 +12,12 @@ import time
 app = engine_app(pin_app(True))
 
 test_str = "Hello Pin from embed server."
-test_res = {"errCode": 0, "errMsg": None, "data": test_str}
+test_res = {"code": 0, "msg": None, "data": test_str}
 
 
-@route("/pin/test/engine/hello_serv", response_json)
-def hello(auth, p1):
+@route("/pin/test/engine/hello_serv")
+def hello(p1):
     global test_str
-    print(str(auth))
     print(str(p1))
     return test_res
 
@@ -43,11 +42,10 @@ def start_server():
 def test_server():
     global test_str
 
-    headers = {'Auth-Token': 'abc'}
     param = {"p1": "v1"}
     try:
         resp = requests.get(
-            'http://127.0.0.1:8000/pin/test/engine/hello_serv', params=param, headers=headers)
+            'http://127.0.0.1:8000/pin/test/engine/hello_serv', params=param)
         r = resp.json()
     except Exception as e:
         #pytest.fail('Error: ' + str(e))
@@ -70,3 +68,9 @@ def test_post():
         print('Error')
     else:
         assert r == test_res
+
+
+def test_server_static():
+    resp = requests.get('http://127.0.0.1:8000/css/hello.css')
+    print(resp.text)
+    assert resp.status_code == 200

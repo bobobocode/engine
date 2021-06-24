@@ -44,7 +44,21 @@ def response_json(result, headers=None):
     return res
 
 
-def response_html(tpl_file, tpl_param={}, headers=None):
+def response_raw(result, headers=None):
+    res = {}
+    res['headers'] = []
+    res['headers'].append(('Content-Type', 'application/json;charset=utf-8'))
+    if headers:
+        res['headers'] += list(map(lambda k: (k, headers[k]), headers))
+    res['status'] = '200 OK'
+    res['content'] = result
+    return res
+
+
+def response_tpl(tpl_file, tpl_param, headers=None):
+    if tpl_param is None:
+        tpl_param = {}
+
     res = {}
     res['headers'] = []
     res['headers'].append(('Content-Type', 'text/html;charset=utf-8'))

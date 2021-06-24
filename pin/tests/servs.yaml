@@ -1,0 +1,17 @@
+server:
+  suser: &suser-server
+    host: localhost
+    port: 8080
+
+servs:
+  test:
+    rpc1:
+      function: tests.test_servs.r1
+      server: *suser-server
+      remote: true
+      timeout: 2                      #unit second
+      compress: true                  #snappy
+    rpc2:
+      function: tests.test_servs.r2
+      server: *suser-server
+      timeout: 3

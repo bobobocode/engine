@@ -12,7 +12,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - PIN_CONF=/var/app/pin/tests/pin.conf
+      - PIN_CONF=/var/app/tests/pin.conf
     command:
       - sh
       - -c
@@ -20,9 +20,9 @@ services:
         cd /var/app
         pip install -r /var/app/requirements.txt
         python setup.py install
-        cd /var/app/pin/tests
+        cd /var/app/tests
         pip install -r /var/app/test-requirements.txt
-        pytest -v -s .
+        pytest -s .
 
   mysql:
     image: mysql:5.7

@@ -12,14 +12,14 @@ import time
 test_str = "Hello Pin from embed server."
 
 
-@route("/pin/test/hello_serv", response_json)
+@route("/pin/test/hello_serv")
 def hello(p1):
     global test_str
     print(str(p1))
-    return {"errCode": 0, "errMsg": "", "content": test_str}
+    return {"code": 0, "msg": "", "content": test_str}
 
 
-@route("/pin/test/exception", response_json)
+@route("/pin/test/exception")
 def exception():
     raise Exception("Test exception message.")
 
@@ -28,7 +28,7 @@ def exception():
 def hello_post(p1, p2):
     global test_str
     print(str(p1) + " & " + str(p2))
-    return {"errCode": 0, "errMsg": "", "content": test_str}
+    return {"code": 0, "msg": "", "content": test_str}
 
 
 app = pin_app(True)
@@ -51,8 +51,8 @@ def test_server():
     resp = requests.get(
         'http://localhost:8080/pin/test/exception')
     r = resp.json()
-    assert r["errCode"] == -500
-    assert r["errMsg"] == "Test exception message."
+    assert r["code"] == -500
+    assert r["msg"] == "Test exception message."
 
     param = {"p1": "post1", "p2": {"p2k1": 1, "p2k2": [1, 2]}}
     resp = requests.post(
