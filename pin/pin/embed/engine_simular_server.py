@@ -61,13 +61,12 @@ class EngineHandler(BaseHTTPRequestHandler):
             static_file = self.static_root_path + self.path
             logger.debug("Looking up static file:  %s" % static_file)
             f = open(static_file)
-            self.send_response(200)
-            self.send_header('Content-type', mimetype)
-            self.end_headers()
-            self.wfile.write(f.read())
-            f.close()
+            return self.response(200, {'Content-type': mimetype}, f.read())
         except IOError:
             self.send_error(404, 'File Not Found: %s' % self.path)
+        finally:
+            if f:
+                f.close()
 
     def engine_request(self, method):
         paths = self.path.split('?')

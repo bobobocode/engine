@@ -49,3 +49,4 @@ dist
 *egg*
 *.cache
 log.txt
+.DS_Store
