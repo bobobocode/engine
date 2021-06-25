@@ -16,10 +16,10 @@ from jinja2 import Environment, \
     Template
 
 
-def tpl_path(conf=None):
+def get_tpl_conf_value(conf, conf_key):
     if not conf:
         conf = common.get_conf(None)
-    path = conf('app', 'template_path', None)
+    path = conf('app', conf_key, None)
     return path
 
 
@@ -76,16 +76,22 @@ def response_404():
     return res
 
 
-def view(tpl_path):
+def view(conf):
+    tpl_path = get_tpl_conf_value(conf, 'template_path')
     if not tpl_path:
         return None
-
     print('Use template path: ' + tpl_path)
+
+    tpl_reload = get_tpl_conf_value(conf, 'template_reload')
+    if not tpl_reload or 'false' == tpl_reload.lower():
+        tpl_reload = False
+    else:
+        tpl_reload = True
 
     jinja2_env = Environment(
         loader=FileSystemLoader(tpl_path),
         bytecode_cache=FileSystemBytecodeCache(tpl_path),
-        auto_reload=False,
+        auto_reload=tpl_reload,
         optimized=True,
         autoescape=select_autoescape(['htm', 'html', 'xml', 'json']))
 
@@ -97,9 +103,9 @@ def view(tpl_path):
     return render
 
 
-render = view(tpl_path())
+render = view(common.get_conf(None))
 
 
 def config_render(conf):
     global render
-    render = view(tpl_path(conf))
+    render = view(conf)
