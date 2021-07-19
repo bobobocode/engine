@@ -83,3 +83,23 @@ def execute(db, sql, param=None):
         return dbbase.execute(conn, sqls)
     else:
         raise Exception("Failed to get db conn.")
+
+
+def by_eq_field(query, field_name, param):
+    query[0].append(' and ' + field_name + '''=%s''')
+    query[1].append(param)
+    return query
+
+
+def by_limit(query, page_index, page_size):
+    query[0].append(''' limit %s, %s ''')
+    query[1].append(page_index)
+    query[1].append(page_index + page_size)
+    return query
+
+
+def by_order(query, field_name, order):
+    query[0].append(' order by ' + field_name)
+    if order:
+        query[0].append(' ' + order)
+    return query
