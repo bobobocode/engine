@@ -1,7 +1,7 @@
 # Engine
 
 [engine](https://github.com/bobobozzz/engine.git)
- - Embedded python for nginx-module and come with Pin which is a python functional web framework.
+ - Embedded python for nginx-module and come with Driven which is a python functional web framework.
 
 * To support developing web application using nginx in python;
 * To use functional program paradim. 
@@ -9,8 +9,8 @@
 ## Now
 
 * Nginx call python script embedly.
-* Funcitonal web framework pin.
-* Pin has a python embed http server to support develop mode.
+* Funcitonal web framework driven.
+* Driven has a python embed http server to support develop mode.
 * WSGI compliant.
 * Transform external interface to inner interfaces:
 
@@ -19,7 +19,7 @@
     The auth data is queried by the header value as key.
     The auth data is saved in Redis.
 
-* Pin helps choosing to call methods by local or remote.
+* Driven helps choosing to call methods by local or remote.
 * Make the project built by CI with Travis.
 
 ## Todo
@@ -51,12 +51,12 @@ $ make install
 
 ## Usage
 
-1.Program python wsgi app like this, or you can use web framework pin to develop wsgi app.
+1.Program python wsgi app like this, or you can use web framework driven to develop wsgi app.
 
 ```
 #File: hello.py
 
-from pin.router import engine_app
+from driven.router import engine_app
 
 
 def wsgi_app(environ, start_response):
@@ -80,6 +80,11 @@ http {
         error_log /usr/local/nginx/logs/debug.log debug;
         listen       8080;
         server_name  localhost;
+
+        location /simple {
+            engine_func  /functions-path;
+            with_context /functions-path/context.py
+        }
 
         location /hello {
             engine_app /path/to/app hello app;
@@ -108,9 +113,9 @@ docker-compose up -d engine_compiler
 You can run auto test shell scripts in directory tests.
 These scripts run on docker. You just need docker engine.
 
-The script **prepare_testvenv.sh** used for local testing of pin.
+The script **prepare_testvenv.sh** used for local testing of driven.
 
-## About a new Web Framework: Pin
+## About a new Web Framework: Driven
 
 It makes these things as follows work.
 
