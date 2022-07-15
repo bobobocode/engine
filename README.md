@@ -1,30 +1,14 @@
 # Engine
 
-[engine](https://github.com/bobobozzz/engine.git)
- - Embedded python for nginx-module and come with Driven which is a python functional web framework.
+[engine](https://github.com/bobobocode/engine.git)
+- Embedded Python in Nginx 
 
-* To support developing web application using nginx in python;
-* To use functional program paradim. 
-
-## Now
-
-* Nginx call python script embedly.
-* Funcitonal web framework driven.
-* Driven has a python embed http server to support develop mode.
-* WSGI compliant.
-* Transform external interface to inner interfaces:
-
-    Get value from header item which name is configured.
-    Transform it to the auth data.
-    The auth data is queried by the header value as key.
-    The auth data is saved in Redis.
-
-* Driven helps choosing to call methods by local or remote.
-* Make the project built by CI with Travis.
+* Request python functions with context object
+* Support WSGI
 
 ## Todo
 
-* Make it to be a complete project to support enterprise-level development.
+* Filter
 
 ## Requirement
 
@@ -34,7 +18,7 @@
 ## Installation
 
 ```sh
-$ git clone https://github.com/bobobozzz/engine.git
+$ git clone https://github.com/bobobocode/engine.git
 
 $ wget 'http://nginx.org/download/nginx-1.19.3.tar.gz'
 $ tar -zxvf nginx-1.19.3.tar.gz
@@ -56,7 +40,7 @@ $ make install
 ```
 #File: hello.py
 
-from driven.router import engine_app
+from engine.py.app import engine_app
 
 
 def wsgi_app(environ, start_response):
@@ -113,35 +97,6 @@ docker-compose up -d engine_compiler
 You can run auto test shell scripts in directory tests.
 These scripts run on docker. You just need docker engine.
 
-The script **prepare_testvenv.sh** used for local testing of driven.
-
-## About a new Web Framework: Driven
-
-It makes these things as follows work.
-
-1. A web service interfact should be a funtion 
-which param comes from http get/post paramters 
-and return a text/json/html/binary value.
-
-2. It`s process is direct and clear.
-
-3. Could be replaced easily with WSGI.
-
-4. It has tester module to make unittest looks like protocol docs.
-
-## Version Rules 
-
-N1.N2.N3[{a|b|rc}N][.dev][.postN]
-
- N1: Support Level
-
-     N1 > 0: Support personal develop;
-     N1 > 1: Support enterprise develop.
-
- N2: Big Functions
-
- N3: Fix bugs (1-Pass base test)
-
 ## Contributors
 
-BoBoBo
+- BoBoBo

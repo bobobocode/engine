@@ -1,6 +1,5 @@
 version: '3'
 services:
-
   engine_compiler:
     container_name: engine.compiler
     build:
