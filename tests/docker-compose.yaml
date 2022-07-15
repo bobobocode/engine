@@ -10,6 +10,7 @@ services:
       - "8080:8080"
     environment:
         - C_INCLUDE_PATH=/usr/include/python3.6m
+        - PYTHONPATH=/var:${PYTHONPATH}
 
   test-c:
     <<: *engine-common
@@ -49,7 +50,6 @@ services:
         mkdir -p /usr/local/nginx/logs
         touch /usr/local/nginx/logs/debug.log
         /usr/local/nginx/sbin/nginx -c /var/engine/tests/ngx-conf/nginx.conf
-        tail -f /dev/null
-        #cd /var/engine/tests
-        #pip3 install pytest requests
-        #pytest -v test_helloworld.py || cat /usr/local/nginx/logs/debug.log
+        cd /var/engine/tests
+        pip3 install pytest requests
+        pytest -v test_helloworld.py || cat /usr/local/nginx/logs/debug.log
