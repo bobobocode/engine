@@ -34,6 +34,7 @@
 # Vim
 *.swp
 *.swo
+*.swn
 
 # Python
 __pycache__
@@ -47,4 +48,11 @@ cscope*
 build
 dist
 *egg*
+*.cache
 log.txt
+.DS_Store
+
+# gcc created
+*.o
+temp.txt
+main

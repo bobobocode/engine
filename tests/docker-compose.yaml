@@ -1,73 +1,30 @@
 version: '3'
-
 services:
-  pin:
-    depends_on: 
-      - mysql
-    image: python:3
-    container_name: engine.test.pin
-    volumes:
-      - ../pin:/var/app
+  engine-common: &engine-common
+    build:
+      context: ../../engine
+      dockerfile: ./docker/Dockerfile.centos8
+      args:
+        - nginx_version=1.19.3
     ports:
       - "8080:8080"
     environment:
-      - PIN_CONF=/var/app/pin/tests/pin.conf
+        - C_INCLUDE_PATH=/usr/include/python3.6m
+        - LD_LIBRARY_PATH=/opt/cunit/lib:${LD_LIBRARY_PATH}
+        - PYTHONPATH=/var:${PYTHONPATH}
+
+  test-c:
+    <<: *engine-common
+    container_name: engine.test.c
+    volumes:
+      - ~/code/engine:/var/engine
     command:
-      - sh
+      - /bin/bash
       - -c
       - |
-        cd /var/app
-        pip install -r /var/app/requirements.txt
-        python setup.py install
-        cd /var/app/pin/tests
-        pip install -r /var/app/test-requirements.txt
-        pytest -s .
-
-  mysql:
-    image: mysql:5.7
-    container_name: engine.test.mysql
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=db_test
-      - MYSQL_USER=test
-      - MYSQL_PASSWORD=test
-    ports:
-      - "3306:3306"
-  redis:
-    image: redis:6.0.0
-    container_name: engine.test.redis
-    ports:
-      - "6379:6379"
-
-  engine-common: &engine-common
-      build:
-        context: ../../engine
-        dockerfile: ./docker/Dockerfile.centos8
-        args:
-          - nginx_version=1.19.3
-      volumes:
-        - ~/code/engine:/var/engine
-      ports:
-        - "8080:8080"
-      environment:
-        - C_INCLUDE_PATH=/usr/include/python3.6m
-
-  test-example-helloworld:
-      <<: *engine-common
-      container_name: engine.test.example.helloworld
-      command:
-        - /bin/bash
-        - -c 
-        - |
-          ./configure --with-debug \
-            --prefix=/usr/local/nginx \
-            --add-module=/var/engine/engine \
-            --with-ld-opt="`python3.6-config --ldflags`"
-          make
-          make install
-          cd /var/engine/pin
-          python3 setup.py install
-          /usr/local/nginx/sbin/nginx -c /var/engine/example/helloworld/ngx-conf/nginx.conf
-          cd /var/engine/tests
-          pip3 install -r ./test-requirements.txt
-          pytest -v test_example_helloworld.py || cat /usr/local/nginx/logs/debug.log
+        ./configure --with-debug \
+          --prefix=/usr/local/nginx \
+          --with-ld-opt="`python3.6-config --ldflags`"
+        cd /var/engine/tests/ctest
+        make
+        ./main

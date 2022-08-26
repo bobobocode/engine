@@ -2,4 +2,5 @@
 
 #BoBoBo#
 
-./test_pin.sh
+./test_c.sh
+./test_examples.sh
