@@ -56,3 +56,6 @@ log.txt
 *.o
 temp.txt
 main
+*-log.txt
+tmp
+nginx-*

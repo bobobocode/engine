@@ -25,7 +25,7 @@ do
     fi
 done
 
-python3 -m pytest ${scrip_dir}/test_examples.py
+pytest ${scrip_dir}/test_examples.py
 
 echo "Start cleaning..."
 docker-compose down

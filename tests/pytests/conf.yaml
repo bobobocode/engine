@@ -1,0 +1,7 @@
+test-conf:
+  db:
+    database: ./test-db.db
+  log:
+    name: test-log
+    path: ./test-log.txt
+    level: DEBUG

@@ -5,27 +5,18 @@ services:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile.centos8
-      args:
-        - nginx_version=1.19.3
     volumes:
-      - ..:/var/engine
-      - ../examples:/var/app
+      - ..:/usr/local/engine
+      - ../examples:/usr/local/app
     ports:
       - "8080:8080"
     environment:
-      - C_INCLUDE_PATH=/usr/include/python3.6m
-      - PYTHONPATH=/var/engine:${PYTHONPATH}
+      - PYTHONPATH=/usr/local/engine:${PYTHONPATH}
     command:
       - /bin/bash
       - -c 
       - |
-        ./configure --with-debug \
-          --with-cc-opt='-g -O0' \
-          --prefix=/usr/local/nginx \
-          --add-module=/var/engine/engine \
-          --with-ld-opt="`python3.6-config --ldflags`"
-        make
-        make install
+        ./install.sh -p /usr/local/nginx
         mkdir -p /usr/local/nginx/logs
         touch /usr/local/nginx/logs/debug.log
         tail -f /dev/null

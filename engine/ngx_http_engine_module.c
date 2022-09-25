@@ -85,8 +85,8 @@ ngx_http_engine_handler(ngx_http_request_t *r)
 ngx_int_t
 ngx_http_engine_func_handler(ngx_http_request_t *r)
 {
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-            "engine_func: %V", &r->uri);
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+            "engine_func: %V with: %V", &r->uri, &r->args);
 
     ngx_str_t response = pin_func(r);
     return ngx_response_pin(r, response);

@@ -2,29 +2,23 @@ version: '3'
 services:
   engine-common: &engine-common
     build:
-      context: ../../engine
+      context: ..
       dockerfile: ./docker/Dockerfile.centos8
-      args:
-        - nginx_version=1.19.3
     ports:
       - "8080:8080"
-    environment:
-        - C_INCLUDE_PATH=/usr/include/python3.6m
-        - LD_LIBRARY_PATH=/opt/cunit/lib:${LD_LIBRARY_PATH}
-        - PYTHONPATH=/var:${PYTHONPATH}
 
   test-c:
     <<: *engine-common
     container_name: engine.test.c
     volumes:
-      - ~/code/engine:/var/engine
+      - ..:/usr/local/engine
+    environment:
+        - LD_LIBRARY_PATH=/opt/cunit/lib:${LD_LIBRARY_PATH}
     command:
       - /bin/bash
       - -c
       - |
-        ./configure --with-debug \
-          --prefix=/usr/local/nginx \
-          --with-ld-opt="`python3.6-config --ldflags`"
-        cd /var/engine/tests/ctest
+        ./install.sh -p /usr/local/nginx
+        cd /usr/local/engine/tests/ctests
         make
         ./main

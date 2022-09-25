@@ -3,6 +3,7 @@
 #ifndef _ENGINE_PIN_H_INCLUDED_
 #define _ENGINE_PIN_H_INCLUDED_
 
+#include <stdio.h>
 #include <Python.h>
 #include <ngx_http.h>
 #include <ngx_http_request.h>
@@ -28,5 +29,19 @@ PyObject * engine_ex(PyObject *pyo, PyObject *pArgsT);
 PyObject *assemble_dict(ngx_http_request_t *r);
 ngx_str_t assemble_response(ngx_http_request_t *r, PyObject *pin_response);
 
+
+#ifdef UNITTEST
+void ngx_conf_log_error(ngx_uint_t level, ngx_conf_t *cf, ngx_err_t err, const char *fmt, ...);
+
+void
+ngx_conf_log_error(ngx_uint_t level, ngx_conf_t *cf,
+        ngx_err_t err, const char *fmt, ...)
+{
+    va_list  args;
+    va_start(args, fmt);
+    printf(fmt, args);
+    va_end(args);
+}
+#endif
 
 #endif /* _ENGINE_PIN_H_INCLUDED_ */

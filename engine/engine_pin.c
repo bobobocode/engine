@@ -161,14 +161,14 @@ engine_func_ctx_initialize(char *py_ctx_path, char *py_ctx_module,
     if (!pModule) {
         ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
                 "Failed to init for command with_context: %s",
-                "failed to import engine.py.func");
+                "failed to import engine_py.func");
         return -1;
     }
     PyObject *pyo_py = PyModule_GetDict(pModule);
     if (!pyo_py) {
         ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
                 "Failed to init for command with_context: %s",
-                "failed to get engine.py.func dict");
+                "failed to get engine_py.func dict");
         return -1;
     }
 
@@ -176,7 +176,7 @@ engine_func_ctx_initialize(char *py_ctx_path, char *py_ctx_module,
     if (!pyo_func || !PyCallable_Check(pyo_func)) {
         ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
                 "Failed to init for command with_context: %s",
-                "failed to get engine.py.func.build_context");
+                "failed to get engine_py.func.build_context");
         return -1;
     }
 

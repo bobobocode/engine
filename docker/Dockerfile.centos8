@@ -3,8 +3,6 @@ FROM centos:$centos_version as builder
 # needed to do again after FROM due to docker limitation
 ARG centos_version
 
-ARG nginx_version=1.19.3
-
 RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-* &&\
     sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
 
@@ -23,9 +21,6 @@ run yum install -y gcc gcc-c++\
     gdb \
     && yum clean all
 
-workdir /var/nginx
-run wget 'http://nginx.org/download/nginx-'$nginx_version'.tar.gz' \
-    && tar -zxvf nginx-$nginx_version.tar.gz
 workdir /var/cunit
 run wget 'https://jaist.dl.sourceforge.net/project/cunit/CUnit/2.1-3/CUnit-2.1-3.tar.bz2' \
     && tar -jxvf CUnit-2.1-3.tar.bz2
@@ -39,4 +34,5 @@ run libtoolize -f -c -i \
     && ./configure -prefix=/opt/cunit \
     && make \
     && make install
-workdir /var/nginx/nginx-$nginx_version
+
+workdir /usr/local/engine
