@@ -1,14 +1,38 @@
 /*BoBoBo*/
 
 
-#include "ngx_http_engine_module.h"
+#include <ngx_config.h>
+#include <ngx_core.h>
+#include <ngx_http.h>
+#include "engine_pin.h"
+
+
+typedef struct {
+    ngx_str_t engine_app;
+} ngx_http_engine_conf_t;
+
+typedef struct {
+    ngx_str_t engine_func;
+    ngx_str_t engine_func_ctx;
+} ngx_http_engine_func_conf_t;
+
+
+static char * ngx_http_set_engine_app(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+static char * ngx_http_set_engine_func(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+static char * ngx_http_set_engine_func_ctx(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+
+static ngx_int_t ngx_http_engine_handler(ngx_http_request_t *r);
+static ngx_int_t ngx_http_engine_func_handler(ngx_http_request_t *r);
+
+static ngx_int_t ngx_response_pin(ngx_http_request_t *r, ngx_str_t response);
+
 
 
 #ifndef offsetof
 #define offsetof(type, field) (size_t)(&(((type *)0)->field))
 #endif
 
-ngx_command_t ngx_http_engine_commands[] = {
+static ngx_command_t ngx_http_engine_commands[] = {
     {
         ngx_string("engine_app"),
         NGX_HTTP_LOC_CONF | NGX_CONF_TAKE3,
@@ -36,7 +60,7 @@ ngx_command_t ngx_http_engine_commands[] = {
     ngx_null_command
 };
 
-ngx_http_module_t ngx_http_engine_module_ctx = {
+static ngx_http_module_t ngx_http_engine_module_ctx = {
     /*called before resolving the configuration file */
     NULL,    /* ngx_int_t (*preconfiguration)(ngx_conf_t *cf) */
     /*called after resolving the configuration file */
@@ -70,7 +94,7 @@ ngx_module_t ngx_http_engine_module = {
 };
 
 
-ngx_int_t
+static ngx_int_t
 ngx_http_engine_handler(ngx_http_request_t *r)
 {
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -82,7 +106,7 @@ ngx_http_engine_handler(ngx_http_request_t *r)
 
 
 
-ngx_int_t
+static ngx_int_t
 ngx_http_engine_func_handler(ngx_http_request_t *r)
 {
     ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -162,7 +186,7 @@ ngx_http_set_engine_func_ctx(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 }
 
 
-ngx_int_t
+static ngx_int_t
 ngx_response_pin(ngx_http_request_t *r, ngx_str_t response)
 {
 	ngx_str_t type = ngx_string("text/plain");
